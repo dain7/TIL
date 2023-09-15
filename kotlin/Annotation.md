@@ -6,7 +6,10 @@
 ## Meta Annotation
 - annotation을 위한 annotation
 ### @Target
-- 어노테이션을 할 수 있는 요소를 지정한다
+- 어노테이션을 사용할 수 있는 요소를 지정한다. 
+- CLASS: class, interface, object, annotation class에 사용 가능
+- FUNCTION: 생성자를 제외한 함수들에 사용 가능하도록 제한
+- FIELD: backing field를 포함한 field들에만 사용 가능하도록 제한 
 ### @Retention
 - 어노테이션을 컴파일 된 클래스로 저장할지 여부와 런타임에 리플렉션을 이용해 접근할 수 있게 할지 여부를 지정한다.
 ### @Repeatable 
