@@ -1,0 +1,89 @@
+# 도메인 모델 시작
+
+### 도메인
+
+책을 구매할 때 이용하는 온라인 서점. 어떤 책이 나왔는지 검색하고, 책의 목차와 서평을 본다. 장바구니에 담아두기도 하고, 바로 구매도 할 수 있다 </br>
+쿠폰을 사용하기도 하고, 결제수단으로 신용카드도 있고, 가상계좌를 사용할 수 도 있다. 구매 후 언제쯤 책을 받아볼 수 있는지 궁금해서 배송추적 기능을 사용한다.</br>
+개발자 입장에서 온라인 서점은 <b>구현해야 할 소프트웨어의 대상</b>이 된다. 온라인 서점 소프트웨어는 온라인으로 책을 판매하는데 필요한 상품 조회, 구매, 결제, 배송 추적 등의 기능을 제공해야한다. </br>
+이때 온라인 서점은 소프트웨어로 해결하고자 하는 문제 영역 <b>도메인</b>에 해당한다. </br>
+
+### 도메인 모델
+
+기본적으로 도메인 모델은 특정 도메인을 개념적으로 표현한 것이다. </br>
+도메인을 객체 기반으로 모델링을 하거나, 상태 다이어그램을 이용해 상태 모델링을 할 수 있다. </br>
+중요한 것은 도메인 자체를 이해하는데 도움을 줘야 한다는 것이다. </br>
+
+### 도메인 모델 패턴
+
+일반적인 애플리케이션 아키텍처는 네 개의 계층으로 구성된다.
+
+- 사용자 인터페이스 : 사용자의 요청을 처리하고 사용자에게 정보를 보여준다.
+- 응용 : 사용자가 요청한 기능을 실행한다. 업무 로직을 직접 구현하지 않으며 도메인 계층을 조합해서 기능을 실행한다.
+- 도메인 : 시스템이 제공할 도메인 규칙을 구현한다.
+- 인프라 스트럭쳐 : 데이터베이스나 메시징 시스템과 같은 외부 시스템과의 연동을 처리한다.
+
+도메인 계층은 도메인의 핵심 규칙을 구혀한다. </br>
+주문 도메인의 경우 '출고 저에 배송지를 변경할 수 있다'는 규칙과 '주문 취소는 배송전에만 할 수 있다'는 규칙을 구현한 코드가 도메인 계층에 위치하게 된다. </br>
+이런 도메인 규칙을 객체 지향 기법으로 구현하는 패턴이 도메인 모델 패턴이다.
+
+```java
+public class Order {
+    private OrderState state;
+    private ShippingInfo shippingInfo;
+
+    public void changeShippingInfo(ShippingInfo newShippingInfo) {
+        if (!state.isShippingChangeable()) {
+            throw new IllegalStateException("can't change shipping in " + state);
+        }
+        this.shippingInfo = newShippingInfo;
+    }
+
+    public void changeShipped() {
+        this.state = OrderState.SHIPPED;
+    }
+}
+
+public enum OrderState {
+    PAYMENT_WAITING {
+        public boolean isShippingChangeable() {
+            return true;
+        }
+    },
+    PEPARING {
+        public boolean isShippingChagaeble() {
+            return true;
+        }
+    },
+    SHIPPED, DELIVERING, DELIVERY_COMPLETED;
+
+    public boolean isShippingChaneable() {
+        return false;
+    }
+}
+```
+
+- OrderState는 주문 대기 중이거나, 상품 준비 중에는 배송지를 변경할 수 있다는 도메인 규칙을 구현.
+- Order 클래스는 OrderState의 isShippingChangeable() 메서드를 이용해서 변경 가능 여부를 확인한 후 변경 가능한 경우에만 배송지를 변경한다.
+  </br>
+  큰 틀에서 보면 OrderState는 Order에 속한 데이터이므로 배송지 정보 변경 가능 여부를 판단하는 코드를 Order로 이동할 수도 있다.
+  다음은 Order 크래스에서 판단하도록 수정한 코드를 보여주고 있다.
+
+```java
+public class Order {
+    private OrderState state;
+    private ShippingInfo shippingInfo;
+
+    public void changeShippingInfo(ShippingInfo newShippingInfo) {
+        if (!isShippingChangeable()) {
+            throw new IllegalStateException("can't change shipping in " + state);
+        }
+        this.shippingInfo = newShippingInfo;
+    }
+
+    public boolean isShippingChangeable() {
+        return state = OrderState.PAYMENT_WWAITING || state == OrderState.WATING;
+    }
+}
+```
+
+배송지 변경 가능 여부를 판단하는 기능이 Order에 있든, OrderState에 있든 중요한 점은 주문과 관련된 중요 업무 규칙을 주문 도메인 모델인 Order나 OrderState에서 구현한다는 점이다. 핵심 규칙을 구현한 코드는 도메인 모델에만 위치하기 때문에 규칙이 바뀌거나 규칙을 확장해야 할 때 다른 코드에 영향을 덜 주고 변경 내역을 모델에 반영할 수 있게 된다 .
