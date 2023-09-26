@@ -87,3 +87,61 @@ public class Order {
 ```
 
 배송지 변경 가능 여부를 판단하는 기능이 Order에 있든, OrderState에 있든 중요한 점은 주문과 관련된 중요 업무 규칙을 주문 도메인 모델인 Order나 OrderState에서 구현한다는 점이다. 핵심 규칙을 구현한 코드는 도메인 모델에만 위치하기 때문에 규칙이 바뀌거나 규칙을 확장해야 할 때 다른 코드에 영향을 덜 주고 변경 내역을 모델에 반영할 수 있게 된다 .
+
+### 도메인 모델 도출
+
+도메인을 모델링 할 때 기본이 되는 작업은 모델을 구성하는 핵심 구성요소, 규칙, 기능을 찾는 것이다. </br>
+이 과정은 요구사항에서 출발한다. 주문 도메인과 관련된 몇가지 요구사항을 보자 </br>
+
+- 최소 한 종류 이상의 상품을 주문해야 한다.
+- 한 상품을 한 개 이상 주문할 수 있다.
+- 총 주문 금액은 각 상품이 구매 가격 합을 모두 더한 금액이다.
+- 각 상품의 구매 가격 합은 상품 가격에 구매 개수를 곱한 값이다.
+- 주문할 때 배송지 정보를 반드시 지정해야 한다.
+- 배송지 정보는 받는 사람 이름, 전화번호, 주소로 구성된다.
+- 출고를 하면 배송지 정보를 변경할 수 없다.
+- 출고 전에 주문을 취소할 수 있다.
+- 고객이 결제를 완료하기 전에는 상품을 준비하지 않는다.
+
+이 요구사항에서 알 수 있는건 주문은 다음과 같은 기능을 제공한다는 것이다.
+
+- 출고 상태로 변경하기
+- 배송지 정보 변경하기
+- 주문 취소하기
+- 결제 완료로 변경하기
+
+```java
+public class Order {
+    public void changeShipped() { ... }
+    public void changeShippingInfo() { ... }
+    public void cancel() { ... }
+    public void completePayment() { ... }
+}
+```
+
+다음 요구사항은 주문 항목이 어떤 데이터로 구성되는지 알려준다.
+
+- 한 상품을 한 개 이상 주문할 수 있다.
+- 각 상품의 구매 가격 합은 상품 가격에 구매 개수를 곱한 값이다.
+
+```java
+public class OrderLine {
+    private Product product;
+    private int price;
+    private int quantity;
+    private int amounts;
+
+    public OrderLine(Product product, int price, int quantity) {
+        this.product = product;
+        this.price = price;
+        this.quantity = quantity;
+        this.amounts = calculateAmounts();
+    }
+
+    private int calculateAmounts() {
+        return price * quantity;
+    }
+
+    public int getAmounts() { ... }
+}
+```
