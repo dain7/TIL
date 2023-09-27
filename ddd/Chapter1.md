@@ -145,3 +145,63 @@ public class OrderLine {
     public int getAmounts() { ... }
 }
 ```
+
+다음 요구사항은 Order와 OrderLine과의 관계를 알려준다.
+- 최소 한 종류 이상의 상품을 주문해야 한다.
+- 총 주문 금액은 각 상품의 구매 가격 합을 모두 더한 금액이다.
+
+```java
+public class Order {
+    private List<OrderLine> orderLines;
+    private int totalAmounts;
+    
+    public Order(List<OrderLine> orderLines) {
+        setOrderLines(orderLines);
+    }
+    
+    private void setOrderLines(List<OrderLine> orderLines) {
+        verifyAtLeastOneOrMoreOrderLines(orderLines);
+        this.orderLines = orderLines;
+        calcualteTotalAmounts();
+    }
+    
+    private void verifyAtLeastOneOrMoreOrderLines(List<OrderLine> orderLines) {
+        if (orderLines == null || orderLines.isEmpty()) {
+            throw new IllegalArgumentException("no orderline");
+        }
+    }
+    
+  ... // 
+}
+```
+
+배송지 정보는 이름, 전화번호, 주소 데이터를 가지므로 다음과 같이 정의한다.
+
+```java
+public class ShippingInfo {
+    private String receiverName;
+    private String receiverPhonNumber;
+    private String shippingAddress1;
+    private String shippingAddress2;
+    private String shippingZipcode;
+  ... //
+}
+```
+
+도메인을 구현하다보면 특정 조건이나 상태에 따라 제약이나 규칙이 달리 적용되는 경우가 많다.
+- 출고를 하면 배송지 정보를 변경할 수 없다.
+- 출고 전에 주문을 취소할 수 있다. 
+
+이 요구사항은 출고 상태가 되기 전과 후의 제약사하을 기술하고 있다. </br>
+다음 요구사항도 상태와 관련이 있다. 
+
+- 고객이 결제를 완료하기 전에는 상품을 준비하지 않는다.
+
+```java
+public enum OrderState {
+    PAYMENT_WAITING, PREPATING, SHIPPED, DELIVERING, DELIVERY_COMPLETED, CANCELED
+}
+```
+
+이런 식으로 요구사항에 ㄷ맞춰 도메인 모델을 점진적으로 만들면 된다!
+
