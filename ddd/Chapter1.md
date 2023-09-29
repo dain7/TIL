@@ -210,4 +210,78 @@ public enum OrderState {
 엔티티의 가장 큰 특징은 식별자를 갖는다는 것이다. </br>
 주문에서 배송지 주소가 바뀌거나 상태가 바뀌더라도 주문번호가 바뀌지 않는 것처럼 엔티티의 식별자는 바뀌지 않는다. </br>
 엔티티의 식별자는 바뀌지 ㅇ낳고 고유하기 때문에 두 엔티티 객체의 식별자가 같으면 두 엔티티는 같다고 판단할 수 있다. 
+ 
+### 엔티티의 식별자 생성
+
+- 특정 규칙에 따라 생성
+- UUID 사용
+- 값을 직접 입력
+- 일련번호 사용 
+
+### 밸류 타입
+
+ShippingInfo 클래스는 받는 사람과 주소에 대한 데이터를 갖고 있다.
+```java
+public class ShippingInfo {
+    // 받는 사람
+    private String receiverName;
+    private String receiverPhoneNumber;
+    
+    // 주소
+    private String shippingAddress1;
+    private String shippingAddress2;
+    
+  ... // 
+}
+```
+
+ShippingInfo 클래스의 receiverName 필드와 receiverPhoneNumber 필드는 서로 다른 두 데이터를 담고 있지만 두 필드는 개념적으로 받는 사람을 의미한다.
+
+```java
+public class Receiver {
+    private String name;
+    private String phoneNumber;
+    
+    public Receiver(String name, String phoneNumber) {
+        this.name = name;
+        this.phoneNumber = phoneNumber
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+}
+```
+
+Receiver는 '받는 사람'이라는 도메인 개념을 표현한다. 
+
+```java
+public class ShippingInfo {
+    private Receiver receiver;
+    private Address address;
+}
+```
+밸류 타입을 사용할 때의 또 다른 장점은 밸류 타입을 위한 기능을 추가할 수도 있다는 것이다. </br>
+예를 들어, Money 타입은 다음과 같이 돈 계산을 위한 기능을 추가할 수 있다. 
+
+```java
+public class Money {
+    private int value;
+    
+    public Money add(Money money) {
+        return new Money(this.value + money.value);
+    }
+    
+    public Money multiply(int multiplier) {
+        return new Money(value * multiplier);
+    }
+}
+```
+
+밸류 객체의 데이터를 변경할 때는 기존 데이터를 변경하기보다는 변경한 데이터를 갖는 새로운 밸류 객체를 생성하는 방식을 선호한다. </br>
+Money처럼 데이터 변경 기능을 제공하지 않는 타입을 불변이라고 표현한다. 불변으로 구현하는 이유는 보다 안전한 코드를 작성할 수 있기 때문이다. 
 
