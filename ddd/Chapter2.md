@@ -88,4 +88,39 @@ CalculateDiscountService는 <인터페이스>RuleDiscounter에 의존한다. </b
 DroolsRuleDiscounter는 RuleDiscounter를 구현한다. </br>
 
 DIP를 적용하면 저수준 모듈이 고수준 모듈에 의존하게 된다. 고수준 모듈이 저수준 모듈을 사용하려면 고수준 모듈이 저수준 모듈에 의존해야 하는데, 반대로 저수준 모듈이 고수준 모듈에 의존한다고 해서 이를 DIP라고 부른다. </br>
-DIP를 적용하면 1. 구현 교체가 어렵다, 2. 테스트가 어렵다 문제를 해소할 수 있다.
+DIP를 적용하면 1. 구현 교체가 어렵다, 2. 테스트가 어렵다 문제를 해소할 수 있다. </br>
+
+먼저 구현 기술 교체문제를 보면, 고수준 모듈은 더이상 저수준 모듈에 의존하지 않고 구현을 추상화한 인터페이스에 의존한다.
+
+```java
+// 사용할 저수준 객체 생성 
+RuleDiscounter ruleDiscounter = new DroolsRuleDiscounter();
+
+// 생성자 방식으로 주입 
+CalculateDiscountService disService = new CalulateDiscountService(ruleDiscounter);
+```
+```java
+// 사용할 저수준 객체 변경
+RuleDiscounter ruleDiscounter = new SimpleRuleDiscounter();
+
+// 사용할 저수준 모듈을 변경해도 고수준 모듈을 수정할 필요가 없다.
+CalculateDiscountService disService = new CalulateDiscountService(ruleDiscounter);
+```
+
+의존 주입을 지원하는 스프링과 같은 프레임워크를 사용하면 설정 코드를 수정해서 쉽게 구현체를 변경할 수 있다.</br>
+
+```java
+public class CalculateDiscountService {
+    private CustomerRepository customerRepository;
+    private RuleDiscounter ruleDiscounter;
+  ...
+}
+```
+
+테스트 또한 CaculateDiscoutService가 저수준 모듈에 직접 의존했다면 저수준 모듈이 만들어지기 전까지 테스트를 할 수가 없었겠지만 CustomerRepository와 RuleDiscounter는 인터페이스이므로 대용객체를 사용해서 테스트 진행 가능! </br>
+
+### DIP 주의사항
+DIP를 잘못 생각하면 단순히 인터페이스와 구현 클래스를 분리하는 정도로 받아들일 수 있다. </br>
+DIP의 핵심은 고수준 모듈이 저수준 모듈에 의존하지 않도록 하기 위함이다!!!
+
+
