@@ -30,3 +30,14 @@ name.filterNotNull()
 var name = mutableListOf("a", "b", "c") - "a"
 ```
 
+### groupBy
+- groupBy 함수는 Map<K, List<V>> 형태의 결과를 반환한다.
+- 키와 키에 해당하는 요소들을 리스트로 묶은 맵을 반환한다.
+- 이 함수는 컬렉션의 각 요소에 대해 키를 추출하여 그룹화하고, 각 그룹은 해당 키와 일치하는 요소들의 리스트로 표현된다.
+```kotlin
+val words = listOf("apple", "banana", "cherry", "date", "elderberry")
+
+val groups = words.groupBy { it.length }
+
+println(groups) // 출력 : {5=[apple], 6=[banana, cherry], 4=[date], 10=[elderberry]}
+```
