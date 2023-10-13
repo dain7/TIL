@@ -41,3 +41,16 @@ val groups = words.groupBy { it.length }
 
 println(groups) // 출력 : {5=[apple], 6=[banana, cherry], 4=[date], 10=[elderberry]}
 ```
+
+### groupingBy
+- groupingBy 함수는 Grouping<T, K> 객체를 반환한다.
+- 이 객체는 그룹화된 요소를 나타내는 eachCount 및 fold와 같은 함수를 제공한다. 
+- Grouping 객체는 각 그룹에서 요소를 추출하고 계산하는 데 사용된다.
+```kotlin
+val numbers = listOf(1, 2, 3, 4, 5, 6)
+
+val groups = numbers.groupingBy { if (it % 2 == 0) "even" else "odd" }
+val counts = groups.eachCount()
+
+println(counts) // 출력: {odd=3, even=3}
+```
