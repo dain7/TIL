@@ -10,20 +10,42 @@ fun cases(obj: Any) {
         else -> println("Unknown")
     }
 }
-```
-# Ranges 
 
-- 1에서 5까지 
+// 모든 케이스가 커버되면 else 필요없음 (ex. Enum 사용,..)
+enum class Bit {
+    ZERO, ONE
+}
+
+val numericValue = when (getRandomBit()) {
+    Bit.ZERO -> 0
+    Bit.ONE -> 1
+    // 'else' is not required because all cases are covered
+}
+```
+
+# Ranges
+
+- 1에서 5까지
+
 ```kotlin
-// Kotlin
 for (x in 1..5) {
   println(x)
 }
+
+// when 사용
+when (x) {
+    in 1..10 -> print("x is in the range")
+    in validNumbers -> print("x is valid")
+    !in 10..20 -> print("x is outside the range")
+    else -> print("none of the above")
+}
 ```
+
 - 인덱스를 기준으로 출력
+
 ```kotlin
 val list = listOf("Hello", "World", "!")
-for (i in list.indices) { 
+for (i in list.indices) {
     println(list[i]) //  0, 1, 2  == for (i in 0..2)
 }
 ```
