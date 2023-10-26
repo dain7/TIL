@@ -1,3 +1,14 @@
+# for
+- @을 이용하여 라벨링 
+```kotlin
+// @을 만나면 가장 바깥쪽에 있는 for문 탈출 
+loop@ for (i in 1..100) {
+    for (j in 1..100) {
+        if (...) break@loop
+    }
+}
+```
+
 # When
 
 ```kotlin
