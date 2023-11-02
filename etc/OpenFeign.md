@@ -41,6 +41,34 @@ public interface ExampleClient {
   - configuration : feign client 설정 정보가 세팅되어 있는 클래스
 
 
+### Fallback
+```java
+@FeignClient(name = "test", url = "http://localhost:${server.port}/", fallback = Fallback.class)
+    protected interface TestClient {
+
+        @RequestMapping(method = RequestMethod.GET, value = "/hello")
+        Hello getHello();
+
+        @RequestMapping(method = RequestMethod.GET, value = "/hellonotfound")
+        String getException();
+
+    }
+
+    @Component
+    static class Fallback implements TestClient {
+
+        @Override
+        public Hello getHello() {
+            throw new NoFallbackAvailableException("Boom!", new RuntimeException());
+        }
+
+        @Override
+        public String getException() {
+            return "Fixed response";
+        }
+
+    }
+```
 
 # 참고자료
 우아한 형제들 : 우아한 feign 적용기
