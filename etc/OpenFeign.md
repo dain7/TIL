@@ -42,6 +42,11 @@ public interface ExampleClient {
 
 
 ### Fallback
+- Spring Cloud CircuitBreaker supports the notion of a fallback: 
+- a default code path that is executed when the circuit is open or there is an error. 
+- To enable fallbacks for a given @FeignClient set the fallback attribute to the class name that implements the fallback. 
+- You also need to declare your implementation as a Spring bean.
+- 
 ```java
 @FeignClient(name = "test", url = "http://localhost:${server.port}/", fallback = Fallback.class)
     protected interface TestClient {
