@@ -26,3 +26,5 @@
 1. Begin Order: When a new order is initiated, create a new saga instance and store it in a database. The saga instance should include all the data required to perform the order process, such as the user’s information and the order details. The initial step in the saga is to create a new order in the database.
 
 2. Process Payment: The next step in the saga is to process the payment. If the payment is successful, update the saga instance to mark the order as paid in the database. If the payment fails, the saga should trigger a compensation step to cancel the order and roll back any previous steps.
+
+3. Check Inventory: After the payment has been processed successfully, the next step is to check the inventory to see if all the items in the order are available. If any items are out of stock, the saga should trigger a compensation step to cancel the order and roll back any previous steps.
