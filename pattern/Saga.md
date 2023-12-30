@@ -30,3 +30,5 @@
 3. Check Inventory: After the payment has been processed successfully, the next step is to check the inventory to see if all the items in the order are available. If any items are out of stock, the saga should trigger a compensation step to cancel the order and roll back any previous steps.
 
 4. Reserve Inventory: If all the items are available, the next step is to reserve the inventory for the order. If the inventory cannot be reserved for any reason, the saga should trigger a compensation step to cancel the order and roll back any previous steps.
+
+5. Ship Order: Mark the order as shipped in the database.
