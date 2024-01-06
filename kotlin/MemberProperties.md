@@ -29,3 +29,28 @@ val immutableSecret = kClass.memberProperties.find { it.name == "immutableSecret
 immutableSecret?.isAccessible = true
 println("immutableSecret = ${immutableSecret?.get(instance!!)}") // immutableSecret = 2
 ```
+
+### example
+```kotlin
+import kotlin.reflect.full.memberProperties
+
+data class Example(val name: String?, val age: Int?)
+
+fun main() {
+    val example = Example(null, 25) // object
+    val fieldName = "name" // 필드명
+
+    val property = Example::class.memberProperties.firstOrNull { it.name == fieldName } // 해당 프로퍼티의 필드명과 staitc 필드명으로 찾기
+
+    if (property != null) {
+        val value = property.get(example) // 해당 값 가져오기
+        if (value == null) {
+            println("$fieldName is null")
+        } else {
+            println("$fieldName: $value")
+        }
+    } else {
+        println("Property with name $fieldName not found")
+    }
+}
+```
