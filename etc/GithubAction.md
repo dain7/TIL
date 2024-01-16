@@ -23,3 +23,9 @@
 
 ### runners
 - github action runner 어플리케이션이 설치된 머신으로, workflow가 실행될 인스턴스 
+
+# Github action 생성 흐름
+1. 코드 작성
+2. 코드 작성 후 workflow 정의
+3. 정상 작동 테스트
+
