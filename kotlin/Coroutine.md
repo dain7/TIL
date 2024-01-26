@@ -21,3 +21,32 @@
 - 코루틴은 기본적으로 일시중단 가능하다. 
 - launch로 실행하든, async로 실행하든 내부에 해당 코루틴을 일시중단 해야하는 동작이 있으면 코루틴은 일시 중단된다.
 - suspend fun은 일시중단 가능한 함수를 지칭하는 것이다.
+ex. 하나의 thread가 block 될 경우, 해당 thread는 다른 작업을 할 수 없는 block 상태에 놓이게 된다. 
+그러나 suspend function을 사용한다면 blocked 된 상태에 놓일 때, 그 작업을 suspend하고 그 기강동안 thread에서 다른 작업 수행 가능! 
+
+```kotlin
+fun main() {
+    launch(Dispatchers.IO) {
+      // 병렬로 2개 함수 실행 
+      async { suspendTask1() }
+      async { suspendTask2() }
+    }
+}
+
+suspend fun suspendTask1() {
+    delay(3000)
+    Log.d(TAG, "[suspendTask1] After 3s in (${Thread.currentThread().name})")
+    delay(3000)
+    Log.d(TAG, "[suspendTask1] After 6s in (${Thread.currentThread().name})")
+
+    Log.d(TAG, "[suspendTask1] END in (${Thread.currentThread().name})*****")
+}
+suspend fun suspendTask2() {
+    delay(1000)
+    Log.d(TAG, "[suspendTask2] After 1s in (${Thread.currentThread().name})")
+    delay(3000)
+    Log.d(TAG, "[suspendTask2] After 4s in (${Thread.currentThread().name})")
+
+    Log.d(TAG, "[suspendTask2] END in (${Thread.currentThread().name}) *****")
+}
+```
