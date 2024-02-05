@@ -50,3 +50,9 @@ suspend fun suspendTask2() {
     Log.d(TAG, "[suspendTask2] END in (${Thread.currentThread().name}) *****")
 }
 ```
+
+
+### coroutine scope vs run blocking
+- run blocking
+  - Runs a new coroutine and blocks the current thread interruptibly until its completion.
+  - thread를 작업이 완료될 때까지 Blocking 한다.
