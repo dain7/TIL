@@ -35,3 +35,23 @@ query {
 
 ##### 단점
 - 캐싱이 rest보다 어렵다.
+
+### 예시
+```java
+@Controller
+public class TestController {
+
+    private String testAString = "testAString";
+
+    @QueryMapping
+    public String testA() {
+        return testAString;
+    }
+
+    @MutationMapping
+    public String testAUpdate(@Argument String changeValue) {
+        testAString = changeValue;
+        return testAString;
+    }
+}
+```
