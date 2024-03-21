@@ -80,3 +80,82 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 }
 ```
+
+##### aha point
+- 빈을 두번 등록하면 안됨 
+
+```kotlin
+@Configuration
+class WebMvcConfiguration(
+    private val whitelistConfig: WhitelistConfig
+) : WebMvcConfigurer {
+
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(baseHandlerInterceptor()).addPathPatterns("/**")
+        registry.addInterceptor(ipAccessInterceptor()).addPathPatterns("/**")
+    }
+
+    @Bean
+    fun baseHandlerInterceptor(): BaseHandlerInterceptor {
+        return BaseHandlerInterceptor()
+    }
+
+    @Bean
+    fun ipAccessInterceptor(): IpAccessInterceptor {
+        return IpAccessInterceptor(whitelistConfig)
+    }
+}
+
+```
+
+```kotlin
+// @Component 어노테이션 제거
+open class IpAccessInterceptor(
+    private val whitelistConfig: WhitelistConfig
+) : HandlerInterceptor {
+
+    private val log = logger()
+
+    override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+        val clientIp = getIpAddress()
+        if(!isWhiteIp(clientIp)) {
+            val requestUri = request.requestURI
+            log.warn("Forbidden IP. request uri = {$requestUri}, client ip = {$clientIp}")
+
+            response.sendError(403, "IP Forbidden")
+            return false
+        }
+
+        return true
+    }
+
+    private fun isWhiteIp(clientIp: String): Boolean {
+        return whitelistConfig.cidrs.any { cidr ->
+            IpAddressMatcher(cidr).matches(clientIp)
+        }
+    }
+}
+```
+
+- 얘는 테스트
+```kotlin
+@SpringBootTest
+@AutoConfigureMockMvc
+class IpAccessInterceptorTest {
+    @Autowired
+    lateinit var mockMvc: MockMvc
+
+    @Test
+    fun `Allowed IP`() {
+        mockMvc.perform(get("/hello").header("X-Forwarded-For", "127.0.0.1"))
+            .andExpect(status().isOk)
+    }
+
+    @Test
+    fun `Not allowed IP`() {
+        mockMvc.perform(get("/hello").header("X-Forwarded-For", "192.99.99.99"))
+            .andExpect(status().isForbidden)
+    }
+}
+
+```
