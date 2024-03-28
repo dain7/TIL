@@ -38,10 +38,15 @@ class PathContainer {
     }
 
     private fun isMatchPathPattern(requestedPath: String, requestedMethod: String, possiblePath: MultiValueMap<String, String>): Boolean {
+        val foundPattern = findPathPattern(requestedPath, possiblePath)
         if (possiblePath[requestedPath].isNullOrEmpty()) return false
         return possiblePath[requestedPath]!!.contains(requestedMethod)
     }
 
+    private fun findPathPattern(requestedPath: String, possiblePath: MultiValueMap<String, String>): String? {
+        return possiblePath.keys.firstOrNull { Regex(toNormalize(it)).matches(requestedPath) }
+    }
+    
     fun addIncludePathPattern(requestedPath: String, requestedMethod: String) {
         this.includePathPattern += addMap(requestedPath, requestedMethod)
     }
