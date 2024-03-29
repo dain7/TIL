@@ -92,3 +92,63 @@ open class DuplicateTransactionInterceptor(
     }
 }
 ```
+
+### aop로 분리
+
+```kotlin
+package com.sentbe.bizplatform.userapi.common.aop
+
+import com.sentbe.bizplatform.userapi.exception.BadRequestException
+import com.sentbe.bizplatform.userapi.exception.ResultCode
+import com.sentbe.bizplatform.userapi.exception.SystemException
+import com.sentbe.bizplatform.userapi.util.RedisUtil
+import com.sentbe.bizplatform.userapi.util.getMerchantId
+import com.sentbe.bizplatform.userapi.util.logger
+import org.aspectj.lang.annotation.Aspect
+import org.aspectj.lang.annotation.Before
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
+
+@Aspect
+@Component
+class DuplicateCheckAspect(
+    @Value("\${duplicate-check.expiration-seconds}") var seconds: Long = 10,
+    private var redisUtil: RedisUtil,
+    private var includePathPattern: List<String> = listOf("/v1/wallets/*/convert")
+) {
+
+    val log = logger()
+
+    @Before("@annotation(com.sentbe.bizplatform.userapi.common.aop.DupCheck)")
+    fun duplicateCheck() {
+        val request = (RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request
+        val duplicateCheckKey = request.getHeader("duplicate-check-key") ?: throw BadRequestException(ResultCode.PARAMETER_MISSED, "Duplicate Check Key is required.")
+        val merchantId = getMerchantId()
+        val path = getNormalizePattern(request.servletPath) ?: request.servletPath
+        val key = "duplicateCheck:$path:${duplicateCheckKey}:${merchantId}"
+        log.info("request path: $path, duplicate check key: $duplicateCheckKey, merchant id: $merchantId, key: $key")
+
+        val result = redisUtil.getString(key)
+        if (!result.isNullOrBlank() && result == duplicateCheckKey) {
+            log.info("$duplicateCheckKey is already exists.")
+            throw SystemException(ResultCode.INTERNAL_SERVER_ERROR, "Duplicated Request.")
+        }
+        redisUtil.setStringWithExpireSeconds(key, duplicateCheckKey, seconds)
+    }
+
+    private fun getNormalizePattern(requestedPath: String): String? {
+        return includePathPattern.firstNotNullOfOrNull { possiblePath -> findPathPattern(requestedPath, possiblePath) }
+    }
+
+    private fun findPathPattern(requestedPath: String, possiblePath: String): String? {
+        return if (Regex(toNormalize(possiblePath)).matches(requestedPath)) possiblePath else null
+    }
+
+    private fun toNormalize(str: String): String {
+        return str.replace("*", ".*")
+    }
+}
+
+```
