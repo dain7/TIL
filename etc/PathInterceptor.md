@@ -152,3 +152,35 @@ class DuplicateCheckAspect(
 }
 
 ```
+### 최최최종으로 메소드 명으로 분리
+
+```kotlin
+@Aspect
+@Component
+class DuplicateCheckAspect(
+    @Value("\${duplicate-check.expiration-seconds}") var seconds: Long = 10,
+    private var redisUtil: RedisUtil,
+) {
+
+    val log = logger()
+    @Pointcut("@annotation(com.sentbe.bizplatform.userapi.common.aop.DuplicateCheck)")
+    fun duplicateCheckMethods() {}
+
+    @Before("duplicateCheckMethods()")
+    fun duplicateCheck(joinPoint: JoinPoint) {
+        val request = (RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request
+        val duplicateCheckKey = request.getHeader("duplicate-check-key") ?: throw BadRequestException(ResultCode.PARAMETER_MISSED, "Duplicate Check Key is required.")
+        val merchantId = getMerchantId()
+        val methodName = joinPoint.signature.name
+        val key = "duplicateCheck:$methodName:${duplicateCheckKey}:${merchantId}"
+        log.info("method Name: $methodName, duplicate check key: $duplicateCheckKey, merchant id: $merchantId, key: $key")
+
+        val result = redisUtil.getString(key)
+        if (!result.isNullOrBlank() && result == duplicateCheckKey) {
+            log.info("$duplicateCheckKey is already exists.")
+            throw SystemException(ResultCode.INTERNAL_SERVER_ERROR, "Duplicated Request.")
+        }
+        redisUtil.setStringWithExpireSeconds(key, duplicateCheckKey, seconds)
+    }
+}
+```
