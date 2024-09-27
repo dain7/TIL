@@ -30,6 +30,9 @@ Envoy를 이용해서 서비스 매쉬를 구현하기 위해서는 Envoy로 구
 
 ### Envoy
 - 서비스 옆에 사이드카가 Envoy
-- Envoy를 통해 트래픽을 통제한다. 
+- Envoy를 통해 트래픽을 통제한다.
+
+![서비스 매쉬 drawio](https://github.com/user-attachments/assets/35289b8e-2c24-4b70-90fc-109fba66f6e2)
+
 
 
